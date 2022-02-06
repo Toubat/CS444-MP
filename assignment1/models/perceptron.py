@@ -16,6 +16,8 @@ class Perceptron:
         self.lr = lr
         self.epochs = epochs
         self.n_class = n_class
+        self.decay_rate = 0.03
+
 
     def train(self, X_train: np.ndarray, y_train: np.ndarray):
         """Train the classifier.
@@ -28,25 +30,30 @@ class Perceptron:
             y_train: a numpy array of shape (N,) containing training labels
         """
 
+        # set random seed
+        np.random.seed(42)
         # Initialize weights from the standard normal distribution
         self.w = np.random.randn(X_train.shape[1], self.n_class) # (D, C)
 
         print(f"Training Perceptron...")
 
         for epoch in range(self.epochs):
-            scores = X_train @ self.w   # (N, C)
+            scores = X_train @ self.w  # (N, C)
 
+            w_grad = np.zeros(self.w.shape) # (D, C)
 
+            # Vectorized version
             for i in range(X_train.shape[0]):
-                x_i, y_i = X_train[i].T, y_train[i]  # (D, 1), (1, 1)
+                x_i, y_i = X_train[i].T, y_train[i] # (D, 1), (1, 1)
+                I = scores[i, :] > scores[i, y_i] # (1, C)
 
-                for c in range(self.n_class):
-                    if c == y_i or scores[i, c] <= scores[i, y_i]:
-                        continue
-                    self.w[:, c] -= self.lr * x_i
-                    self.w[:, y_train[i]] += self.lr * x_i
+                w_grad[:, y_i] -= np.sum(I) * x_i # (D, 1)
+                w_grad[:, :] += x_i[:, None] @ I[None, :] # (D, C)
 
-            print(f"Epoch {epoch}, Accuracy: {self.get_acc(self.predict(X_train), y_train):.2f}%")
+            # proceed to update weights by gradient descent
+            self.w -= self.exp_decay(epoch) * w_grad
+
+            print(f"Epoch {epoch + 1}/{self.epochs}, Accuracy: {self.get_acc(self.predict(X_train), y_train):.2f}%")
 
         return None
 
@@ -71,4 +78,9 @@ class Perceptron:
 
 
     def get_acc(self, pred, y_test):
+
         return np.sum(y_test == pred) / len(y_test) * 100
+
+
+    def exp_decay(self, epoch):
+        return self.lr * np.exp(-self.decay_rate * epoch)
