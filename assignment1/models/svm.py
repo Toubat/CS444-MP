@@ -44,11 +44,11 @@ class SVM:
         scores = X_train @ self.w  # (N, C)
 
         for i in range(N):
-            x_i, y_i = X_train[i].T, y_train[i] # (D, 1), (1, 1)
+            x_i, y_i = X_train[i].T, y_train[i] # (D+1, 1), (1, 1)
             I = scores[i, y_i] - scores[i, :] < 1 # (1, C)
 
-            w_grad[:, y_i] -= np.sum(I) * x_i # (D, 1)
-            w_grad[:, :] += x_i[:, None] @ I[None, :] # (D, C)
+            w_grad[:, y_i] -= np.sum(I) * x_i # (D+1, 1)
+            w_grad[:, :] += x_i[:, None] @ I[None, :] # (D+1, C)
 
         # regularization
         w_grad[:, :] += self.reg_const * self.w
@@ -67,26 +67,49 @@ class SVM:
             y_train: a numpy array of shape (N,) containing training labels
         """
 
+        y_raw = y_train
+        max_acc = 0
+
         # set random seed
         np.random.seed(42)
+
+        # add bias column to X_train
+        X_norm = self.normalize(X_train)
+        X_norm = np.hstack((X_norm, np.ones((X_norm.shape[0], 1)))) # (N, D+1)
+
         # Initialize weights from the standard normal distribution
-        self.w = np.random.randn(X_train.shape[1], self.n_class) # (D, C)
+        self.w = np.random.randn(X_norm.shape[1], self.n_class) # (D+1, C)
 
         print(f"Training SVM...")
         for epoch in range(self.epochs):
 
-            for i in range(0, X_train.shape[0], self.batch_size):
-                X_batch = X_train[i:i + self.batch_size]
+            # shuffle data
+            idx = np.arange(X_norm.shape[0])
+            np.random.shuffle(idx)
+            X_norm, y_train = X_norm[idx], y_train[idx]
+
+            for i in range(0, X_norm.shape[0], self.batch_size):
+                X_batch = X_norm[i:i + self.batch_size]
                 y_batch = y_train[i:i + self.batch_size]
 
                 w_grad = self.calc_gradient(X_batch, y_batch)
                 self.w -= self.lr * w_grad
 
-                # if i % (self.batch_size * 100) == 0:
-            print(f"Epoch {epoch + 1}/{self.epochs}, Accuracy: {self.get_acc(self.predict(X_train), y_train):.2f}%")
+
+            accuracy = self.get_acc(self.predict(X_train), y_raw)
+            if accuracy > max_acc:
+                # store self.w to a file called svm_weights.npy
+                max_acc = accuracy
+                np.save('svm_weights.npy', self.w)
+
+            print(f"Epoch {epoch + 1}/{self.epochs}, Accuracy: {accuracy:.2f}")
 
 
         return None
+
+
+    def load_weights(self, weights_path = 'svm_weights.npy'):
+        self.w = np.load(weights_path)
 
 
     def predict(self, X_test: np.ndarray) -> np.ndarray:
@@ -101,10 +124,11 @@ class SVM:
                 length N, where each element is an integer giving the predicted
                 class.
         """
+        X_test = self.normalize(X_test)
+        X_test = np.hstack((X_test, np.ones((X_test.shape[0], 1)))) # (N, D+1)
 
         scores = X_test @ self.w
         pred = np.argmax(scores, axis=1)
-
         return pred
 
 
@@ -114,3 +138,13 @@ class SVM:
 
     def exp_decay(self, epoch):
         return self.lr * np.exp(-self.decay_rate * epoch)
+
+    def normalize(self, X):
+        mean = X.mean(0, keepdims=True)
+        std = X.std(0, keepdims=True)
+        std += (std == 0.0) * 1e-15
+        X = X.astype(np.float64)
+        X -= mean
+        X /= std
+
+        return X

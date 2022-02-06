@@ -15,7 +15,7 @@ class Logistic:
         self.lr = lr
         self.epochs = epochs
         self.threshold = threshold
-        self.decay_rate = 0.03
+        self.decay_rate = 0.01
 
 
     def sigmoid(self, z: np.ndarray) -> np.ndarray:
@@ -27,7 +27,6 @@ class Logistic:
         Returns:
             the sigmoid of the input
         """
-        print(z.max(), z.min())
         return 1 / (1 + np.exp(-z))
 
 
@@ -48,11 +47,13 @@ class Logistic:
         self.w = np.random.randn(X_train.shape[1], 1) # (D, 1)
 
         # normalize X_train
-        X_train = X_train / np.linalg.norm(X_train, axis=0)
+        X_train = self.normalize(X_train)
+        y_norm = np.where(y_train == 0, -1, y_train)
 
         for epoch in range(self.epochs):
-            w_grad = np.zeros(self.w.shape) # (D, 1)
-            w_grad = -(y_train[:, None] * X_train).T @ self.sigmoid(-y_train[:,None] * (X_train @ self.w)) / len(y_train)
+            w_grad = -(y_norm[:, None] * X_train).T @ self.sigmoid(-y_norm[:,None] * (X_train @ self.w))
+
+            # (N, 1) * (N, D) -> (N, D) -> (D, N) @ (N, 1) -> (D, 1)
 
             # for i in range(X_train.shape[0]):
             #     x_i, y_i = X_train[i].T, y_train[i] # (D, 1), (1, 1)
@@ -79,10 +80,8 @@ class Logistic:
                 class.
         """
         # normalize X_train
-        X_test = X_test / np.linalg.norm(X_test, axis=0)
-        print(self.sigmoid(X_test @ self.w))
+        X_test = self.normalize(X_test)
         pred = self.sigmoid(X_test @ self.w) > self.threshold
-        print(np.sum(self.sigmoid(X_test @ self.w) > 0))
 
         return pred.squeeze()
 
@@ -93,3 +92,14 @@ class Logistic:
 
     def exp_decay(self, epoch):
         return self.lr * np.exp(-self.decay_rate * epoch)
+
+
+    def normalize(self, X):
+        mean = X.mean(0, keepdims=True)
+        std = X.std(0, keepdims=True)
+        std += (std == 0.0) * 1e-15
+        X = X.astype(np.float64)
+        X -= mean
+        X /= std
+
+        return X
