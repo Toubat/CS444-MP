@@ -38,17 +38,17 @@ class Perceptron:
         print(f"Training Perceptron...")
 
         for epoch in range(self.epochs):
-            scores = X_train @ self.w  # (N, C)
-
             w_grad = np.zeros(self.w.shape) # (D, C)
 
-            # Vectorized version
+            scores = X_train @ self.w  # (N, C)
+            scores_y = scores[np.arange(scores.shape[0]), y_train][:, None] # (N, 1)
+            I = scores > scores_y # (N, C)
+
             for i in range(X_train.shape[0]):
                 x_i, y_i = X_train[i].T, y_train[i] # (D, 1), (1, 1)
-                I = scores[i, :] > scores[i, y_i] # (1, C)
+                w_grad[:, y_i] -= np.sum(I[i, :]) * x_i # (D, 1)
 
-                w_grad[:, y_i] -= np.sum(I) * x_i # (D, 1)
-                w_grad[:, :] += x_i[:, None] @ I[None, :] # (D, C)
+            w_grad[:, :] += X_train.T @ I # (D, C)
 
             # proceed to update weights by gradient descent
             self.w -= self.exp_decay(epoch) * w_grad
@@ -57,6 +57,23 @@ class Perceptron:
 
         return None
 
+
+    # function that takes training, validation and test data and an array, return the accuracy of each of them
+    def get_accuracy(self, X_train, y_train, X_val, y_val, X_test, y_test):
+        # train the model
+        self.train(X_train, y_train)
+
+        # get the predictions
+        pred_train = self.predict(X_train)
+        pred_val = self.predict(X_val)
+        pred_test = self.predict(X_test)
+
+        # get the accuracy of each
+        acc_train = self.get_acc(pred_train, y_train)
+        acc_val = self.get_acc(pred_val, y_val)
+        acc_test = self.get_acc(pred_test, y_test)
+
+        return acc_train, acc_val, acc_test
 
     def predict(self, X_test: np.ndarray) -> np.ndarray:
         """Use the trained weights to predict labels for test data points.
