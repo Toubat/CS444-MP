@@ -4,7 +4,7 @@ import numpy as np
 
 
 class Perceptron:
-    def __init__(self, n_class: int, lr: float, epochs: int):
+    def __init__(self, n_class: int, lr: float, epochs: int, decay_rate: float = 0.03, lr_decay: bool = True):
         """Initialize a new classifier.
 
         Parameters:
@@ -16,10 +16,11 @@ class Perceptron:
         self.lr = lr
         self.epochs = epochs
         self.n_class = n_class
-        self.decay_rate = 0.03
+        self.decay_rate = decay_rate
+        self.lr_decay = lr_decay
 
 
-    def train(self, X_train: np.ndarray, y_train: np.ndarray):
+    def train(self, X_train: np.ndarray, y_train: np.ndarray, X_test: np.ndarray, y_test: np.ndarray):
         """Train the classifier.
 
         Use the perceptron update rule as introduced in the Lecture.
@@ -34,6 +35,8 @@ class Perceptron:
         np.random.seed(42)
         # Initialize weights from the standard normal distribution
         self.w = np.random.randn(X_train.shape[1], self.n_class) # (D, C)
+
+        accuracy = np.zeros((self.epochs, 1))
 
         print(f"Training Perceptron...")
 
@@ -51,29 +54,24 @@ class Perceptron:
             w_grad[:, :] += X_train.T @ I # (D, C)
 
             # proceed to update weights by gradient descent
-            self.w -= self.exp_decay(epoch) * w_grad
+            if self.lr_decay:
+                self.w -= self.exp_decay(epoch) * w_grad
+            else:
+                self.w -= self.lr * w_grad
 
             print(f"Epoch {epoch + 1}/{self.epochs}, Accuracy: {self.get_acc(self.predict(X_train), y_train):.2f}%")
+            accuracy[epoch] = self.get_test_acc(X_test, y_test)
 
-        return None
+        return accuracy
 
 
     # function that takes training, validation and test data and an array, return the accuracy of each of them
-    def get_accuracy(self, X_train, y_train, X_val, y_val, X_test, y_test):
-        # train the model
-        self.train(X_train, y_train)
-
+    def get_test_acc(self, X_test, y_test):
         # get the predictions
-        pred_train = self.predict(X_train)
-        pred_val = self.predict(X_val)
         pred_test = self.predict(X_test)
-
-        # get the accuracy of each
-        acc_train = self.get_acc(pred_train, y_train)
-        acc_val = self.get_acc(pred_val, y_val)
         acc_test = self.get_acc(pred_test, y_test)
 
-        return acc_train, acc_val, acc_test
+        return np.array([acc_test])
 
     def predict(self, X_test: np.ndarray) -> np.ndarray:
         """Use the trained weights to predict labels for test data points.

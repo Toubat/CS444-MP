@@ -56,7 +56,7 @@ class SVM:
         return w_grad
 
 
-    def train(self, X_train: np.ndarray, y_train: np.ndarray):
+    def train(self, X_train: np.ndarray, y_train: np.ndarray, X_test: np.ndarray, y_test: np.ndarray) -> None:
         """Train the classifier.
 
         Hint: operate on mini-batches of data for SGD.
@@ -108,6 +108,14 @@ class SVM:
         return None
 
 
+    def get_test_acc(self, X_test, y_test):
+        # get the predictions
+        pred_test = self.predict(X_test)
+        acc_test = self.get_acc(pred_test, y_test)
+
+        return np.array([acc_test])
+
+
     def load_weights(self, weights_path = 'svm_weights.npy'):
         self.w = np.load(weights_path)
 
@@ -138,6 +146,7 @@ class SVM:
 
     def exp_decay(self, epoch):
         return self.lr * np.exp(-self.decay_rate * epoch)
+
 
     def normalize(self, X):
         mean = X.mean(0, keepdims=True)
