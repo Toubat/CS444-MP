@@ -60,7 +60,7 @@ class Softmax:
 
         softmax_scores = self.softmax(scores) # (N, C)
 
-        # one hot ecode y_batch
+        # one hot encode y_batch
         y_batch_one_hot = np.zeros((y_batch.shape[0], self.n_class)) # (N, C)
         y_batch_one_hot[np.arange(y_batch.shape[0]), y_batch] = 1 # (N, C)
 
@@ -69,7 +69,7 @@ class Softmax:
 
         return w_grad
 
-    def train(self, X_train: np.ndarray, y_train: np.ndarray):
+    def train(self, X_train: np.ndarray, y_train: np.ndarray, X_test: np.ndarray, y_test: np.ndarray) -> None:
         """Train the classifier.
 
         Hint: operate on mini-batches of data for SGD.
@@ -98,9 +98,9 @@ class Softmax:
                 w_grad = self.calc_gradient(X_batch, y_batch)
                 self.w -= self.lr * w_grad
 
-            accuracy = self.get_acc(self.predict(X_train), y_train)
+            accuracy = self.get_acc(self.predict(X_test), y_test)
             if accuracy > max_acc:
-                # store self.w to a file called svm_weights.npy
+                # store self.w to a file called softmax_weights.npy
                 max_acc = accuracy
                 np.save('softmax_weights.npy', self.w)
 
