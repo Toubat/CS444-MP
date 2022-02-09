@@ -67,7 +67,6 @@ class SVM:
             y_train: a numpy array of shape (N,) containing training labels
         """
 
-        y_raw = y_train
         max_acc = 0
 
         # set random seed
@@ -96,7 +95,7 @@ class SVM:
                 self.w -= self.lr * w_grad
 
 
-            accuracy = self.get_acc(self.predict(X_train), y_raw)
+            accuracy = self.get_acc(self.predict(X_test), y_test)
             if accuracy > max_acc:
                 # store self.w to a file called svm_weights.npy
                 max_acc = accuracy
