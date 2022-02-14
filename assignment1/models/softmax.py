@@ -69,7 +69,7 @@ class Softmax:
 
         return w_grad
 
-    def train(self, X_train: np.ndarray, y_train: np.ndarray, X_test: np.ndarray, y_test: np.ndarray) -> None:
+    def train(self, X_train: np.ndarray, y_train: np.ndarray, X_val: np.ndarray, y_val: np.ndarray) -> None:
         """Train the classifier.
 
         Hint: operate on mini-batches of data for SGD.
@@ -98,7 +98,7 @@ class Softmax:
                 w_grad = self.calc_gradient(X_batch, y_batch)
                 self.w -= self.lr * w_grad
 
-            accuracy = self.get_acc(self.predict(X_test), y_test)
+            accuracy = self.get_acc(self.predict(X_val), y_val)
             if accuracy > max_acc:
                 # store self.w to a file called softmax_weights.npy
                 max_acc = accuracy
@@ -129,12 +129,9 @@ class Softmax:
 
 
     def normalize(self, X):
-        mean = X.mean(0, keepdims=True)
-        std = X.std(0, keepdims=True)
-        std += (std == 0.0) * 1e-15
         X = X.astype(np.float64)
-        X -= mean
-        X /= std
+        X -= X.mean(0, keepdims=True)
+        X /= X.std(0, keepdims=True) + (X.std(0, keepdims=True) == 0.0) * 1e-15
 
         return X
 

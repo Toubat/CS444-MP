@@ -20,7 +20,7 @@ class Perceptron:
         self.lr_decay = lr_decay
 
 
-    def train(self, X_train: np.ndarray, y_train: np.ndarray, X_test: np.ndarray, y_test: np.ndarray):
+    def train(self, X_train: np.ndarray, y_train: np.ndarray, X_val: np.ndarray, y_test: np.ndarray):
         """Train the classifier.
 
         Use the perceptron update rule as introduced in the Lecture.
@@ -60,16 +60,16 @@ class Perceptron:
                 self.w -= self.lr * w_grad
 
             print(f"Epoch {epoch + 1}/{self.epochs}, Accuracy: {self.get_acc(self.predict(X_train), y_train):.2f}%")
-            accuracy[epoch] = self.get_test_acc(X_test, y_test)
+            accuracy[epoch] = self.get_test_acc(X_val, y_test)
 
         return accuracy
 
 
     # function that takes training, validation and test data and an array, return the accuracy of each of them
-    def get_test_acc(self, X_test, y_test):
+    def get_test_acc(self, X_val, y_val):
         # get the predictions
-        pred_test = self.predict(X_test)
-        acc_test = self.get_acc(pred_test, y_test)
+        pred_test = self.predict(X_val)
+        acc_test = self.get_acc(pred_test, y_val)
 
         return np.array([acc_test])
 

@@ -95,11 +95,8 @@ class Logistic:
 
 
     def normalize(self, X):
-        mean = X.mean(0, keepdims=True)
-        std = X.std(0, keepdims=True)
-        std += (std == 0.0) * 1e-15
         X = X.astype(np.float64)
-        X -= mean
-        X /= std
+        X -= X.mean(0, keepdims=True)
+        X /= X.std(0, keepdims=True) + (X.std(0, keepdims=True) == 0.0) * 1e-15
 
         return X

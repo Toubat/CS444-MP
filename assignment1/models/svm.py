@@ -56,7 +56,7 @@ class SVM:
         return w_grad
 
 
-    def train(self, X_train: np.ndarray, y_train: np.ndarray, X_test: np.ndarray, y_test: np.ndarray) -> None:
+    def train(self, X_train: np.ndarray, y_train: np.ndarray, X_val: np.ndarray, y_val: np.ndarray) -> None:
         """Train the classifier.
 
         Hint: operate on mini-batches of data for SGD.
@@ -95,7 +95,7 @@ class SVM:
                 self.w -= self.lr * w_grad
 
 
-            accuracy = self.get_acc(self.predict(X_test), y_test)
+            accuracy = self.get_acc(self.predict(X_val), y_val)
             if accuracy > max_acc:
                 # store self.w to a file called svm_weights.npy
                 max_acc = accuracy
@@ -107,10 +107,10 @@ class SVM:
         return None
 
 
-    def get_test_acc(self, X_test, y_test):
+    def get_test_acc(self, X_val, y_val):
         # get the predictions
-        pred_test = self.predict(X_test)
-        acc_test = self.get_acc(pred_test, y_test)
+        pred_test = self.predict(X_val)
+        acc_test = self.get_acc(pred_test, y_val)
 
         return np.array([acc_test])
 
@@ -148,11 +148,9 @@ class SVM:
 
 
     def normalize(self, X):
-        mean = X.mean(0, keepdims=True)
-        std = X.std(0, keepdims=True)
-        std += (std == 0.0) * 1e-15
         X = X.astype(np.float64)
-        X -= mean
-        X /= std
+        X -= X.mean(0, keepdims=True)
+        X /= X.std(0, keepdims=True) + (X.std(0, keepdims=True) == 0.0) * 1e-15
+
 
         return X
