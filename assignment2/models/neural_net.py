@@ -133,6 +133,7 @@ class NeuralNetwork:
             Matrix of shape (N, C) where scores[i, c] is the score for class
                 c on input X[i] outputted from the last layer of your network
         """
+        X = self.normalize(X)
         self.outputs = {'Relu0': X}
         # self.outputs as it will be used during back-propagation. You can use
         # the same keys as self.params. You can use functions like
@@ -167,7 +168,6 @@ class NeuralNetwork:
             Total loss for this batch of training samples
         """
         self.gradients = {}
-        # TODO: implement me. You'll want to store the gradient of each
         # parameter in self.gradients as it will be used when updating each
         # parameter and during numerical gradient checks. You can use the same
         # keys as self.params. You can add functions like self.linear_grad,
@@ -213,7 +213,6 @@ class NeuralNetwork:
             eps: epsilon to prevent division by zero (for Adam)
             opt: optimizer, either 'SGD' or 'Adam'
         """
-        # TODO: implement me. You'll want to add an if-statement that can
         # handle updates for both SGD and Adam depending on the value of opt.
         if opt == "SGD":
             for key, val in self.gradients.items():
@@ -239,3 +238,37 @@ class NeuralNetwork:
         m_hat = self.m[param_key] / (1 - b1 ** self.t)
         v_hat = self.v[param_key] / (1 - b2 ** self.t)
         self.params[param_key] -= lr * m_hat / (np.sqrt(v_hat) + eps)
+
+
+    def save_checkpoint(self, file_name: str):
+        """Save the model's state to a file.
+        Parameters:
+            file_name: Name of the file to save the state to
+        """
+        checkpoint = {
+            'params': self.params,
+            'm': self.m,
+            'v': self.v,
+            't': self.t,
+        }
+        np.save(file_name, checkpoint)
+
+
+    def load_checkpoint(self, file_name: str):
+        """Load the model's state from a file.
+        Parameters:
+            file_name: Name of the file to load the state from
+        """
+        checkpoint = np.load(file_name, allow_pickle=True).item()
+        self.params = checkpoint['params']
+        self.m = checkpoint['m']
+        self.v = checkpoint['v']
+        self.t = checkpoint['t']
+
+
+    def normalize(self, X):
+        X = X.astype(np.float64)
+        X -= X.mean(0, keepdims=True)
+        X /= X.std(0, keepdims=True) + (X.std(0, keepdims=True) == 0.0) * 1e-15
+
+        return X
