@@ -44,18 +44,18 @@ class ConvBlock(nn.Module):
           nn.BatchNorm2d(out_channels)
         )
 
-        self.convs = nn.ModuleList([nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1) for _ in range(num_layers-1)])
-        self.bns = nn.ModuleList([nn.BatchNorm2d(out_channels) for _ in range(num_layers-1)])
+        self.convs = nn.ModuleList([nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1)] +
+            [nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1) for _ in range(num_layers-1)])
+        self.bns = nn.ModuleList([nn.BatchNorm2d(out_channels) for _ in range(num_layers)])
 
         self.relu = nn.ReLU()
         self.maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
 
 
     def forward(self, x: Tensor) -> Tensor:
-        x = self.downsample(x)
         identity = x
 
-        for i in range(self.num_layers-1):
+        for i in range(self.num_layers):
             x = self.convs[i](x)
 
             if self.bn: # BatchNorm
@@ -63,9 +63,9 @@ class ConvBlock(nn.Module):
 
             x = self.relu(x)
 
-
         if self.skip_connect:
-            x += identity
+            identity = self.downsample(identity)
+            x = x + identity
 
         x = self.maxpool(x)
         return x
@@ -88,10 +88,8 @@ class ConvNet(nn.Module):
 
         self.classifier = nn.Sequential(
             nn.Linear(512 * 5 * 5, 4096),
-            nn.ReLU(inplace=True),
             nn.Dropout(p=0.5),
             nn.Linear(4096, 4096),
-            nn.ReLU(inplace=True),
             nn.Dropout(p=0.5),
             nn.Linear(4096, num_classes)
         )
@@ -105,6 +103,9 @@ class ConvNet(nn.Module):
         x = self.layer5(x)
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
+
+        print("ASDADAS")
+
         x = self.classifier(x)
 
         return x

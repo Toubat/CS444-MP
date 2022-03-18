@@ -100,6 +100,7 @@ class YoloLoss(nn.Module):
             best_ious[best_idx] = iou[best_idx]
             best_boxes[best_idx, :] = pred_box_list[b][best_idx, :]
 
+        # so it will not be involved in backward gradient calculation
         best_ious = best_ious.unsqueeze(1).detach()
 
         return best_ious, best_boxes
