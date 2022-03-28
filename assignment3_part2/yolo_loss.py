@@ -87,20 +87,22 @@ class YoloLoss(nn.Module):
         N = box_target.size(0)
         box_target = self.xywh2xyxy(box_target)
 
-        best_ious = -torch.ones(N).to('cuda')
+        best_ious = torch.zeros(N).to('cuda')
         best_boxes = torch.zeros(N, 5).to('cuda')
+
+        ious = torch.zeros(N, self.B).to('cuda')
 
         for b in range(len(pred_box_list)):
             iou = compute_iou(self.xywh2xyxy(pred_box_list[b][:, :4]), box_target) # (N, N)
             # get diagonal of iou matrix
             iou = iou.diag() # (N, )
+            ious[:, b] = iou
 
-            # boolean mask of the best iou
-            best_idx = (iou > best_ious).nonzero().squeeze() # (N, )
-            best_ious[best_idx] = iou[best_idx]
-            best_boxes[best_idx, :] = pred_box_list[b][best_idx, :]
+        for n in range(N):
+            best_ious[n] = torch.max(ious[n])
+            best_boxes[n] = pred_box_list[torch.argmax(ious[n])][n]
 
-        # so it will not be involved in backward gradient calculation
+        # detach best_ious so it will not be involved in backward gradient calculation
         best_ious = best_ious.unsqueeze(1).detach()
 
         return best_ious, best_boxes
@@ -136,13 +138,13 @@ class YoloLoss(nn.Module):
         3) You can assume the ground truth confidence of non-object cells is 0
         """
         no_obj_loss = 0
-        has_no_obj_map = ~has_object_map
+        has_no_obj_map = has_object_map == 0
 
-        for pred_boxes in pred_boxes_list:
-            no_obj_loss += (has_no_obj_map * pred_boxes[:, :, :, 4].squeeze().pow(2)).sum()
+        for b in range(len(pred_boxes_list)):
+            conf = pred_boxes_list[b][:, :, :, 4][has_no_obj_map] # (N, S, S)
+            no_obj_loss += F.mse_loss(conf, torch.zeros_like(conf), reduction='sum')
 
         no_obj_loss *= self.l_noobj
-
         return no_obj_loss
 
 
@@ -159,7 +161,7 @@ class YoloLoss(nn.Module):
         The box_target_conf should be treated as ground truth, i.e., no gradient
 
         """
-        return (box_pred_conf - box_target_conf).pow(2).sum()
+        return F.mse_loss(box_pred_conf, box_target_conf, reduction='sum')
 
 
     def get_regression_loss(self, box_pred_response: Tensor, box_target_response: Tensor):
@@ -176,7 +178,7 @@ class YoloLoss(nn.Module):
         box_pred_response[:, 2:] = box_pred_response[:, 2:].sqrt()
         box_target_response[:, :2] = box_target_response[:, :2].sqrt()
 
-        return self.l_coord * (box_pred_response - box_target_response).pow(2).sum()
+        return self.l_coord * F.mse_loss(box_pred_response, box_target_response, reduction='sum')
 
 
     def forward(self, pred_tensor: Tensor, target_boxes: Tensor, target_cls: Tensor, has_object_map: Tensor):
@@ -216,28 +218,24 @@ class YoloLoss(nn.Module):
         # Re-shape boxes in pred_boxes_list and target_boxes to meet the following desires
         # 1) only keep having-object cells
         # 2) vectorize all dimensions except for the last one for faster computation
-        has_object_idx = torch.nonzero(has_object_map.view(-1)).squeeze() # (-1)
 
         for i in range(len(pred_boxes_list)):
-            # reshape the boxes to meet the desire
-            pred_boxes_list[i] = pred_boxes_list[i].contiguous().view(-1, 5) # (-1, 5)
-            # keep only the cells which have objects
-            pred_boxes_list[i] = pred_boxes_list[i][has_object_idx]
+            # reshape the boxes to meet the desire, and keep only the cells which have objects
+            pred_boxes_list[i] = pred_boxes_list[i][has_object_map] # (-1, 5)
 
-        target_boxes = target_boxes.view(-1, 4)[has_object_idx] # (-1, 4)
-        target_cls = target_cls.view(-1, 20)[has_object_idx] # (-1, 20)
+        has_obj_target_boxes = target_boxes[has_object_map] # (-1, 4)
 
         # find the best boxes among the 2 (or self.B) predicted boxes and the corresponding iou
-        best_ious, best_boxes = self.find_best_iou_boxes(pred_boxes_list, target_boxes)
+        best_ious, best_boxes = self.find_best_iou_boxes(pred_boxes_list, has_obj_target_boxes)
 
         # compute regression loss between the found best bbox and GT bbox for all the cell containing objects
-        reg_loss = self.get_regression_loss(best_boxes[:, :4], target_boxes)
+        reg_loss = self.get_regression_loss(best_boxes[:, :4], has_obj_target_boxes)
 
         # compute contain_object_loss
-        contain_obj_loss = self.get_contain_conf_loss(best_boxes[:, 4], best_ious)
+        contain_obj_loss = self.get_contain_conf_loss(best_boxes[:, 4].unsqueeze(-1), best_ious)
 
         # compute final loss
-        total_loss += cls_loss + no_obj_loss + contain_obj_loss + reg_loss
+        total_loss += (cls_loss + no_obj_loss + contain_obj_loss + reg_loss) / N
 
         # construct return loss_dict
         loss_dict = dict(
