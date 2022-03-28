@@ -35,7 +35,7 @@ def compute_iou(box1: Tensor, box2: Tensor) -> Tensor:
     area2 = area2.unsqueeze(0).expand_as(inter)  # [M,] -> [1,M] -> [N,M]
 
     iou = inter / (area1 + area2 - inter)
-    return iou
+    return iou # iou[i][j] i-th box and j-th box
 
 
 class YoloLoss(nn.Module):
@@ -70,7 +70,7 @@ class YoloLoss(nn.Module):
     def find_best_iou_boxes(self, pred_box_list: List[Tensor], box_target: Tensor) -> Tuple[Tensor, Tensor]:
         """
         Parameters:
-        box_pred_list : [(tensor) size (-1, 5) ...]
+        box_pred_list : [(tensor) size (-1, 5) for B in self.B]
         box_target : (tensor) size (-1, 4)
 
         Returns:
@@ -94,7 +94,7 @@ class YoloLoss(nn.Module):
 
         for b in range(len(pred_box_list)):
             iou = compute_iou(self.xywh2xyxy(pred_box_list[b][:, :4]), box_target) # (N, N)
-            # get diagonal of iou matrix
+            # get diagonal of iou matrix iou[i][j]
             iou = iou.diag() # (N, )
             ious[:, b] = iou
 
@@ -167,8 +167,8 @@ class YoloLoss(nn.Module):
     def get_regression_loss(self, box_pred_response: Tensor, box_target_response: Tensor):
         """
         Parameters:
-        box_pred_response : (tensor) size (-1, 4)
-        box_target_response : (tensor) size (-1, 4)
+        box_pred_response : (tensor) size (-1, 4) [x, y, w, h]
+        box_target_response : (tensor) size (-1, 4) [x, y, w, h]
         Note : -1 corresponds to ravels the tensor into the dimension specified
         See : https://pytorch.org/docs/stable/tensors.html#torch.Tensor.view_as
 
@@ -176,7 +176,7 @@ class YoloLoss(nn.Module):
         reg_loss : scalar
         """
         box_pred_response[:, 2:] = box_pred_response[:, 2:].sqrt()
-        box_target_response[:, :2] = box_target_response[:, :2].sqrt()
+        box_target_response[:, 2:] = box_target_response[:, 2:].sqrt()
 
         return self.l_coord * F.mse_loss(box_pred_response, box_target_response, reduction='sum')
 
@@ -203,11 +203,12 @@ class YoloLoss(nn.Module):
         # -- pred_boxes_list: a list containing all bbox prediction (list) [(tensor) size (N, S, S, 5)  for B pred_boxes]
         # -- pred_cls (containing all classification prediction)
         pred_boxes_list = []
-        pred_cls = pred_tensor[:, :, :, self.B * 5:]
+        pred_cls = pred_tensor[:, :, :, self.B * 5:] # (N, S, S, 20)
 
         for b in range(self.B):
             start, end = b * 5, (b + 1) * 5
             pred_boxes_list.append(pred_tensor[:, :, :, start : end])
+
 
         # compcute classification loss
         cls_loss = self.get_class_prediction_loss(pred_cls, target_cls, has_object_map)
