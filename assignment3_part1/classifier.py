@@ -56,18 +56,23 @@ class ConvBlock(nn.Module):
         identity = x
 
         for i in range(self.num_layers):
+            print("In Conv ", x.shape)
             x = self.convs[i](x)
-
+            print("Out Conv ", x.shape)
             if self.bn: # BatchNorm
                 x = self.bns[i](x)
 
+            print("In ReLU ", x.shape)
             x = self.relu(x)
+            print("Out ReLU ", x.shape)
 
         if self.skip_connect:
             identity = self.downsample(identity)
             x = x + identity
 
+        print("In MaxPool ", x.shape)
         x = self.maxpool(x)
+        print("Out MaxPool ", x.shape)
         return x
 
 
