@@ -31,7 +31,8 @@ class SpectralNorm(nn.Module):
               3: Calculate w with the spectral norm.
               4: Use setattr to update w in the module.
         """
-        
+
+
 
 
     def _make_params(self):
