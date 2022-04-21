@@ -17,7 +17,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class Agent():
     def __init__(self, action_size):
         self.action_size = action_size
-        
+
         # These are hyper parameters for the DQN
         self.discount_factor = 0.99
         self.epsilon = 1.0
@@ -33,7 +33,7 @@ class Agent():
         # Create the policy net and the target net
         self.policy_net = DQN(action_size)
         self.policy_net.to(device)
-        
+
         self.optimizer = optim.Adam(params=self.policy_net.parameters(), lr=learning_rate)
         self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=scheduler_step_size, gamma=scheduler_gamma)
 
@@ -42,22 +42,23 @@ class Agent():
 
 
     def load_policy_net(self, path):
-        self.policy_net = torch.load(path)           
+        self.policy_net = torch.load(path)
 
     # after some time interval update the target net to be same with policy net
     def update_target_net(self):
         ### CODE ###
+        pass
 
 
-    """Get action using policy net using epsilon-greedy policy"""
+    # Get action using policy net using epsilon-greedy policy
     def get_action(self, state):
         if np.random.rand() <= self.epsilon:
             ### CODE #### (copy over from agent.py!)
-
+            pass
         else:
             ### CODE #### (copy over from agent.py!)
-
-        return a
+            pass
+        return None
 
     # pick samples randomly from replay memory (with batch_size)
     def train_policy_net(self, frame):
@@ -77,8 +78,7 @@ class Agent():
         next_states = np.float32(history[:, 1:, :, :]) / 255.
         dones = mini_batch[3] # checks if the game is over
         musk = torch.tensor(list(map(int, dones==False)),dtype=torch.uint8)
-        
+
         # Your agent.py code here with double DQN modifications
         ### CODE ###
-     
-        
+
