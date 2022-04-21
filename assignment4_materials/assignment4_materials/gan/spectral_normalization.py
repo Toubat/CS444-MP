@@ -7,17 +7,18 @@ from torch import nn
 from torch import Tensor
 from torch.nn import Parameter
 
-def l2normalize(v, eps=1e-12):
+
+def l2normalize(v: Tensor, eps=1e-12):
     return v / (v.norm() + eps)
 
 
 class SpectralNorm(nn.Module):
-    def __init__(self, module, name='weight', power_iterations=1):
+    def __init__(self, module: nn.Module, name='weight', power_iterations=1):
         """
         Reference:
         SPECTRAL NORMALIZATION FOR GENERATIVE ADVERSARIAL NETWORKS: https://arxiv.org/pdf/1802.05957.pdf
         """
-        super(SpectralNorm, self).__init__()
+        super().__init__()
         self.module = module
         self.name = name
         self.power_iterations = power_iterations
@@ -31,8 +32,23 @@ class SpectralNorm(nn.Module):
               3: Calculate w with the spectral norm.
               4: Use setattr to update w in the module.
         """
+        u = getattr(self.module, self.name + "_u")
+        v = getattr(self.module, self.name + "_v")
+        w = getattr(self.module, self.name + "_bar")
 
+        w_l = w.view(u.size(0), -1)
 
+        # Apply power iteration
+        for _ in range(self.power_iterations):
+            v = l2normalize(torch.matmul(torch.t(w_l), u))
+            u = l2normalize(torch.matmul(w_l, v))
+
+        # Calculate w with spectral norm
+        sigma = torch.matmul(torch.t(u), torch.matmul(w_l, v))
+        w = w / sigma
+
+        # Update w
+        setattr(self.module, self.name, w)
 
 
     def _make_params(self):
@@ -42,11 +58,12 @@ class SpectralNorm(nn.Module):
         u: Initialize u with a random vector (sampled from isotropic distrition).
         w: Weight of the current layer.
         """
-        w = getattr(self.module, self.name)
+        w: Tensor = getattr(self.module, self.name)
 
         height = w.data.shape[0]
         width = w.view(height, -1).data.shape[1]
 
+        # print(height, width)
         u = Parameter(w.data.new(height).normal_(0, 1), requires_grad=False)
         v = Parameter(w.data.new(width).normal_(0, 1), requires_grad=False)
         u.data = l2normalize(u.data)
