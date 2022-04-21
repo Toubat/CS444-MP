@@ -1,3 +1,4 @@
+import imp
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -16,11 +17,12 @@ class DQN(nn.Module):
         self.fc = nn.Linear(3136, 512)
         self.head = nn.Linear(512, action_size)
 
-    def forward(self, x):
+    def forward(self, x) -> torch.Tensor:
         x = F.relu(self.bn1(self.conv1(x)))
         x = F.relu(self.bn2(self.conv2(x)))
         x = F.relu(self.bn3(self.conv3(x)))
         x = F.relu(self.fc(x.view(x.size(0), -1)))
+
         return self.head(x)
 
 
@@ -36,10 +38,11 @@ class DQN_LSTM(nn.Module):
         self.fc = nn.Linear(3136, 512)
         self.head = nn.Linear(256, action_size)
         # Define an LSTM layer
+        # self.lstm = nn.LSTM(input_size=256, hidden_size=256, num_layers=1, batch_first=True)
 
     def forward(self, x, hidden = None):
         # You might want to reshape x during train loop (and not while collection experience replay)
-        
+
         x = F.relu(self.bn1(self.conv1(x)))
         x = F.relu(self.bn2(self.conv2(x)))
         x = F.relu(self.bn3(self.conv3(x)))

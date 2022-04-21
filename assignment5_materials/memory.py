@@ -7,7 +7,7 @@ import random
 class ReplayMemory(object):
     def __init__(self):
         self.memory = deque(maxlen=Memory_capacity)
-    
+
     def push(self, history, action, reward, done):
         self.memory.append((history, action, reward, done))
 
@@ -27,7 +27,7 @@ class ReplayMemory(object):
             for j in range(HISTORY_SIZE + 1):
                 sample.append(self.memory[i + j])
 
-            sample = np.array(sample)
+            sample = np.array(sample) # (HISTORY_SIZE + 1, 4)
             mini_batch.append((np.stack(sample[:, 0], axis=0), sample[3, 1], sample[3, 2], sample[3, 3]))
 
         return mini_batch
