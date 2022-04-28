@@ -115,6 +115,7 @@ class Agent():
 class LSTM_Agent(Agent):
     def __init__(self, action_size):
         super().__init__(action_size)
+
         # Generate the memory
         self.memory = ReplayMemoryLSTM()
 
@@ -122,8 +123,12 @@ class LSTM_Agent(Agent):
         self.policy_net = DQN_LSTM(action_size)
         self.policy_net.to(device)
 
+        self.optimizer = optim.Adam(params=self.policy_net.parameters(), lr=learning_rate)
+        self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=scheduler_step_size, gamma=scheduler_gamma)
+
+
     """Get action using policy net using epsilon-greedy policy"""
-    def get_action(self, state: np.ndarray) -> int:
+    def get_action(self, state: np.ndarray, hidden = None) -> int:
         if np.random.rand() <= self.epsilon:
             ### CODE ####
             # Choose a random action
@@ -132,44 +137,61 @@ class LSTM_Agent(Agent):
             ### CODE ####
             # Choose the best action
             state = torch.from_numpy(state).float().unsqueeze(0).to(device)
-            action = self.policy_net(state).max(1)[1].item()
+            action, hidden = self.policy_net(state, hidden)
+            action = action.argmax().item()
 
-        return action
+        return action, hidden
 
     # pick samples randomly from replay memory (with batch_size)
     def train_policy_net(self, frame):
         if self.epsilon > self.epsilon_min:
             self.epsilon -= self.epsilon_decay
 
-        mini_batch = self.memory.sample_mini_batch(frame)
-        mini_batch = np.array(mini_batch).transpose()
+        mini_batch = self.memory.sample_mini_batch(frame) # (batch_size, 4)
+        mini_batch = np.array(mini_batch).transpose() # (4, batch_size)
 
-        history = np.stack(mini_batch[0], axis=0)
+        history = np.stack(mini_batch[0], axis=0) # (batch_size, 21, 84, 84)
         states = np.float32(history[:, :lstm_seq_length, :, :]) / 255.
-        states = torch.from_numpy(states).cuda()
+        states = torch.from_numpy(states).cuda() # (batch_size, 20, 84, 84)
         actions = list(mini_batch[1])
-        actions = torch.LongTensor(actions).cuda()
+        actions = torch.LongTensor(actions).cuda() # (batch_size)
+
         rewards = list(mini_batch[2])
-        rewards = torch.FloatTensor(rewards).cuda()
+        rewards = torch.FloatTensor(rewards).cuda() # (batch_size)
         next_states = np.float32(history[:, 1:, :, :]) / 255.
-        dones = mini_batch[3] # checks if the game is over
-        mask = torch.tensor(list(map(int, dones==False)),dtype=torch.uint8)
+        next_states = torch.from_numpy(next_states).cuda() # (batch_size, 20, 84, 84)
+
+        # checks if the game is over
+        dones = mini_batch[3] # (batch_size)
+        mask = torch.tensor(list(map(int, dones==False)), dtype=torch.uint8).cuda() # (batch_size)
 
         ### All the following code is nearly same as that for Agent
 
         # Compute Q(s_t, a), the Q-value of the current state
         ### CODE ####
+        curr_state_actions, hidden = self.policy_net(states) # (batch_size, action_size)
+        curr_state_values = curr_state_actions.gather(1, actions.unsqueeze(1)).squeeze(1) # (batch_size)
 
         # Compute Q function of next state
         ### CODE ####
+        next_state_actions, _ = self.policy_net(next_states, hidden) # (batch_size, action_size)
 
         # Find maximum Q-value of action at next state from policy net
         ### CODE ####
+        next_state_values = next_state_actions.max(1)[0] * mask.float() # (batch_size)
+        next_state_values = next_state_values.detach()
 
         # Compute the Huber Loss
         ### CODE ####
+        criterion = nn.SmoothL1Loss()
+        expected_state_values = next_state_values * self.discount_factor + rewards
+        loss = criterion(expected_state_values, curr_state_values)
 
         # Optimize the model, .step() both the optimizer and the scheduler!
         ### CODE ####
+        self.optimizer.zero_grad()
+        loss.backward()
 
+        self.optimizer.step()
+        self.scheduler.step()
 

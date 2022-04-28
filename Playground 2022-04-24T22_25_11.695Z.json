@@ -1,0 +1,595 @@
+{
+  "editorState": {
+    "_nodeMap": [
+      [
+        "root",
+        {
+          "__children": ["1", "3", "5", "14", "16", "18", "34", "44"],
+          "__dir": "ltr",
+          "__format": 0,
+          "__indent": 0,
+          "__key": "root",
+          "__parent": null,
+          "__type": "root"
+        }
+      ],
+      [
+        "1",
+        {
+          "__type": "heading",
+          "__parent": "root",
+          "__key": "1",
+          "__children": ["2"],
+          "__format": 0,
+          "__indent": 0,
+          "__dir": "ltr",
+          "__tag": "h1"
+        }
+      ],
+      [
+        "2",
+        {
+          "__type": "text",
+          "__parent": "1",
+          "__key": "2",
+          "__text": "Welcome to the playground",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "3",
+        {
+          "__type": "quote",
+          "__parent": "root",
+          "__key": "3",
+          "__children": ["4"],
+          "__format": 0,
+          "__indent": 0,
+          "__dir": "ltr"
+        }
+      ],
+      [
+        "4",
+        {
+          "__type": "text",
+          "__parent": "3",
+          "__key": "4",
+          "__text": "In case you were wondering what the black box at the bottom is – it's the debug view, showing the current state of editor. You can hide it by pressing on the settings control in the bottom-right of your screen and toggling the debug view setting.",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "5",
+        {
+          "__type": "paragraph",
+          "__parent": "root",
+          "__key": "5",
+          "__children": ["6", "7", "8", "10", "11", "12", "13"],
+          "__format": 0,
+          "__indent": 0,
+          "__dir": "ltr"
+        }
+      ],
+      [
+        "6",
+        {
+          "__type": "text",
+          "__parent": "5",
+          "__key": "6",
+          "__text": "The playground is a demo environment built with ",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "7",
+        {
+          "__type": "text",
+          "__parent": "5",
+          "__key": "7",
+          "__text": "@lexical/react",
+          "__format": 16,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "8",
+        {
+          "__type": "text",
+          "__parent": "5",
+          "__key": "8",
+          "__text": ". Try typing in ",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "10",
+        {
+          "__type": "text",
+          "__parent": "5",
+          "__key": "10",
+          "__text": "some text",
+          "__format": 1,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "11",
+        {
+          "__type": "text",
+          "__parent": "5",
+          "__key": "11",
+          "__text": " with ",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "12",
+        {
+          "__type": "text",
+          "__parent": "5",
+          "__key": "12",
+          "__text": "different",
+          "__format": 2,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "13",
+        {
+          "__type": "text",
+          "__parent": "5",
+          "__key": "13",
+          "__text": " formats.",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "14",
+        {
+          "__type": "paragraph",
+          "__parent": "root",
+          "__key": "14",
+          "__children": ["15", "41", "40"],
+          "__format": 0,
+          "__indent": 0,
+          "__dir": "ltr"
+        }
+      ],
+      [
+        "15",
+        {
+          "__type": "text",
+          "__parent": "14",
+          "__key": "15",
+          "__text": "Make sure to check out the various plugins in the toolbar. You can also use ",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "16",
+        {
+          "__type": "paragraph",
+          "__parent": "root",
+          "__key": "16",
+          "__children": ["17"],
+          "__format": 0,
+          "__indent": 0,
+          "__dir": "ltr"
+        }
+      ],
+      [
+        "17",
+        {
+          "__type": "text",
+          "__parent": "16",
+          "__key": "17",
+          "__text": "If you'd like to find out more about Lexical, you can:",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "18",
+        {
+          "__type": "list",
+          "__parent": "root",
+          "__key": "18",
+          "__children": ["19", "24", "29"],
+          "__format": 0,
+          "__indent": 0,
+          "__dir": "ltr",
+          "__tag": "ul",
+          "__start": 1
+        }
+      ],
+      [
+        "19",
+        {
+          "__type": "listitem",
+          "__parent": "18",
+          "__key": "19",
+          "__children": ["20", "21", "23"],
+          "__format": 0,
+          "__indent": 0,
+          "__dir": "ltr"
+        }
+      ],
+      [
+        "20",
+        {
+          "__type": "text",
+          "__parent": "19",
+          "__key": "20",
+          "__text": "Visit the ",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "21",
+        {
+          "__type": "link",
+          "__parent": "19",
+          "__key": "21",
+          "__children": ["22"],
+          "__format": 0,
+          "__indent": 0,
+          "__dir": "ltr",
+          "__url": "https://lexical.dev/"
+        }
+      ],
+      [
+        "22",
+        {
+          "__type": "text",
+          "__parent": "21",
+          "__key": "22",
+          "__text": "Lexical website",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "23",
+        {
+          "__type": "text",
+          "__parent": "19",
+          "__key": "23",
+          "__text": " for documentation and more information.",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "24",
+        {
+          "__type": "listitem",
+          "__parent": "18",
+          "__key": "24",
+          "__children": ["25", "26", "28"],
+          "__format": 0,
+          "__indent": 0,
+          "__dir": "ltr"
+        }
+      ],
+      [
+        "25",
+        {
+          "__type": "text",
+          "__parent": "24",
+          "__key": "25",
+          "__text": "Check out the code on our ",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "26",
+        {
+          "__type": "link",
+          "__parent": "24",
+          "__key": "26",
+          "__children": ["27"],
+          "__format": 0,
+          "__indent": 0,
+          "__dir": "ltr",
+          "__url": "https://github.com/facebook/lexical"
+        }
+      ],
+      [
+        "27",
+        {
+          "__type": "text",
+          "__parent": "26",
+          "__key": "27",
+          "__text": "GitHub repository",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "28",
+        {
+          "__type": "text",
+          "__parent": "24",
+          "__key": "28",
+          "__text": ".",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "29",
+        {
+          "__type": "listitem",
+          "__parent": "18",
+          "__key": "29",
+          "__children": ["30", "31", "33"],
+          "__format": 0,
+          "__indent": 0,
+          "__dir": "ltr"
+        }
+      ],
+      [
+        "30",
+        {
+          "__type": "text",
+          "__parent": "29",
+          "__key": "30",
+          "__text": "Join our ",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "31",
+        {
+          "__type": "link",
+          "__parent": "29",
+          "__key": "31",
+          "__children": ["32"],
+          "__format": 0,
+          "__indent": 0,
+          "__dir": "ltr",
+          "__url": "https://discord.com/invite/KmG4wQnnD9"
+        }
+      ],
+      [
+        "32",
+        {
+          "__type": "text",
+          "__parent": "31",
+          "__key": "32",
+          "__text": "Discord Server",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "33",
+        {
+          "__type": "text",
+          "__parent": "29",
+          "__key": "33",
+          "__text": " and chat with the team.",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "34",
+        {
+          "__type": "paragraph",
+          "__parent": "root",
+          "__key": "34",
+          "__children": ["35", "38", "37"],
+          "__format": 0,
+          "__indent": 0,
+          "__dir": "ltr"
+        }
+      ],
+      [
+        "35",
+        {
+          "__type": "text",
+          "__parent": "34",
+          "__key": "35",
+          "__text": "Lastly, we're constantly adding cool new features to this playground. So make sure you check back here when you next get a chance ",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "37",
+        {
+          "__type": "text",
+          "__parent": "34",
+          "__key": "37",
+          "__text": ".",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "38",
+        {
+          "__type": "emoji",
+          "__parent": "34",
+          "__key": "38",
+          "__text": "🙂",
+          "__format": 0,
+          "__style": "",
+          "__mode": 1,
+          "__detail": 0,
+          "__marks": null,
+          "__className": "emoji happysmile"
+        }
+      ],
+      [
+        "40",
+        {
+          "__type": "text",
+          "__parent": "14",
+          "__key": "40",
+          "__text": " or @-mentions too!",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "41",
+        {
+          "__type": "hashtag",
+          "__parent": "14",
+          "__key": "41",
+          "__text": "#hashtags",
+          "__format": 0,
+          "__style": "",
+          "__mode": 0,
+          "__detail": 0,
+          "__marks": null
+        }
+      ],
+      [
+        "44",
+        {
+          "__type": "sticky",
+          "__parent": "root",
+          "__key": "44",
+          "__x": 577.2000122070312,
+          "__y": 74.79997253417969,
+          "__caption": {
+            "editorState": {
+              "_nodeMap": [
+                [
+                  "root",
+                  {
+                    "__children": ["47"],
+                    "__dir": "ltr",
+                    "__format": 0,
+                    "__indent": 0,
+                    "__key": "root",
+                    "__parent": null,
+                    "__type": "root"
+                  }
+                ],
+                [
+                  "46",
+                  {
+                    "__type": "text",
+                    "__parent": "47",
+                    "__key": "46",
+                    "__text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "__format": 0,
+                    "__style": "",
+                    "__mode": 0,
+                    "__detail": 0,
+                    "__marks": null
+                  }
+                ],
+                [
+                  "47",
+                  {
+                    "__type": "paragraph",
+                    "__parent": "root",
+                    "__key": "47",
+                    "__children": ["46"],
+                    "__format": 0,
+                    "__indent": 0,
+                    "__dir": "ltr"
+                  }
+                ]
+              ],
+              "_selection": {
+                "anchor": { "key": "46", "offset": 15, "type": "text" },
+                "focus": { "key": "46", "offset": 15, "type": "text" },
+                "type": "range"
+              }
+            }
+          },
+          "__color": "yellow"
+        }
+      ]
+    ],
+    "_selection": null
+  },
+  "lastSaved": 1650839111695,
+  "source": "Playground",
+  "version": "0.2.4"
+}

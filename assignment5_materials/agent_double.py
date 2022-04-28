@@ -103,11 +103,11 @@ class Agent():
         next_actions = self.policy_net(next_states).max(1)[1] # (batch_size)
 
         # Compute Q function of next state
-        next_state_actions: Tensor = self.target_net(next_states) # (batch_size, action_size)
+        next_state_actions: Tensor = self.target_net(next_states).detach() # (batch_size, action_size)
 
         # Find Q-value of action at next state from target net
         next_state_values = next_state_actions.gather(1, next_actions.unsqueeze(1)).squeeze(1) * mask.float() # (batch_size)
-        next_state_values = next_state_values.detach()
+        next_state_values = next_state_values
 
         # Compute the expected Q-value
         expected_state_values = next_state_values * self.discount_factor + rewards
