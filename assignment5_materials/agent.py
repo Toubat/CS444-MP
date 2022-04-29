@@ -129,7 +129,7 @@ class LSTM_Agent(Agent):
 
     """Get action using policy net using epsilon-greedy policy"""
     def get_action(self, state: np.ndarray, hidden = None) -> int:
-        if np.random.rand() <= self.epsilon:
+        if np.random.rand() <= 0:
             ### CODE ####
             # Choose a random action
             action = random.randrange(self.action_size)
